@@ -4,14 +4,13 @@ const cheerio = require('cheerio')
 const url = 'https://avn.kstu.kg/AVN_search_st.html'
 const txtForSearch = 'Азат'
 
-
-
+function tobot(txt){
 nightmare
     .goto(url)
     .wait('body')
     .click('.submit[type="submit"]')
     .wait('div#ReportViewerControl_ctl04_ctl03')
-    .type('#ReportViewerControl_ctl04_ctl03_txtValue', txtForSearch)
+    .type('#ReportViewerControl_ctl04_ctl03_txtValue', txt)
     // .evaluate(() => document.querySelector('body').innerHTML)
     .click('#ReportViewerControl_ctl04_ctl00')
     .wait(1000)
@@ -19,10 +18,12 @@ nightmare
     .end()
     .then(response => {
         // console.log(response);
-        console.log(getData(response))
+        console.log('tobot log there =>', getData(response))
+        return getData(response)
     }).catch(err => {
         console.log('ERROR HANDLER ', err)
     })
+}
 
 let getData = html => {
     data = [];
@@ -35,3 +36,5 @@ let getData = html => {
     })
     return data
 }
+
+module.exports.tobot = tobot
