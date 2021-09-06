@@ -3,8 +3,11 @@ const nightmare = Nightmare({ show: false })
 const cheerio = require('cheerio')
 const url = 'https://avn.kstu.kg/AVN_search_st.html'
 
+
+
 function tobot(txt){
-    nightmare
+    return new Promise(function(resolve, reject) {
+        nightmare
         .goto(url)
         .wait('body')
         .click('.submit[type="submit"]')
@@ -15,40 +18,38 @@ function tobot(txt){
         .evaluate(() => document.querySelector('body').innerHTML)
         .end()
         .then(response => {
-            const promise = new Promise(function(resolve, reject) {
-                const pdata = getData(response)
-                resolve(pdata)
-            })
-            promise.then(pdata => {
-                console.log('parser prom then data => ', pdata)
-                
-            })
+            const data = getData(response)
+            console.log('tobot =>', data)
+            return resolve(data)
+  
         }).catch(err => {
             console.log('ERROR HANDLER ', err)
         })
-    
+
+    })
+
 }
 
+// table tbody tr td table tbody tr:nth-child(4) td:nth-child(3) table tbody td:nth-child(2)
+
 let getData = html => {
-    data = [];
+    let data = [];
     const $ = cheerio.load(html)
-    $('table tbody tr td table tbody tr:nth-child(4) td:nth-child(3) table tbody td:nth-child(2)').each((i, elem) => {
-        data.push({
-            name : $(elem).text(),
-            link : $(elem).find('a').attr('href')
-        })
+    $('table tbody tr td table tbody tr:nth-child(4) td:nth-child(3) table tbody tr').each((i, elem) => {
+        const tds = $(elem).find('td')
+        const id = $(tds[0]).text()
+        const name = $(tds[1]).text()
+        const group = $(tds[3]).text()
+        const tableRow = {id, name, group}
+        data.push(tableRow)
+      
     })
+    console.log('data ', data)
     return data
 }
 
-let p = new Promise(function(resolve, reject) {
-    let shit = tobot('Азат')
-    resolve(shit)
-})
-
-p.then(data => {
-    console.log('SHIT => ', data)
-})
-
+// tobot('азат').then(data => {
+//     console.log('shit ', data)
+// })
 
 module.exports.tobot = tobot
